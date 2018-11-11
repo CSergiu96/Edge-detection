@@ -39,6 +39,7 @@ all: dirs $(EXE)
 	 @echo -e "\e[1m\e[36mExecutable created in : $(BIND) \e[0m" 
 
 dirs:
+	@clear
 	@echo -e "\e[1m\e[36mPreparing directories...\e[0m"
 	@mkdir -p $(OBJD)
 	@mkdir -p $(LIBD)

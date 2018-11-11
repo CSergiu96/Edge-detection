@@ -1,321 +1,107 @@
-
-float linear_interpolate(float y1,float y2,float mu)
- {
-    return(y1*(1-mu)+y2*mu);
- }
-
- 
 /*
-
-unsigned char imagIn[16384];
-unsigned char imagOut[16384];
-float imagAnaliza[16384];
-float imagSinteza[16384];
-float fil[16384];
-float dec_2[16384];
-float  dec_2_2[16384];
-float fil_dec_2[16384];
-float im1_exp2[16384];
-float im1_exp2_fil[16384];
-float im2_exp2[16384];
-float im2_exp2_fil[16384];
-float temp1_exp_fil2[16384];
-float temp2_exp_fil2[16384];
-
-#include <DWT.h>
-
-void Analiza_DWT (unsigned char * ent1, float * iesire, int latime, int inaltime)
+char sobel_check_threshold ( char pixel ,const size_t threshold )
 {
-	int i, j;
-	
-	///////////////////////LL/////////////////////////////////////////////////
-	//Filtrare  pe linii filtru H0
-	for (i=1; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-			fil[i+j*latime]=(ent1[i+j*latime]+ent1[(i-1)+j*latime])*0.707106781;
-	
-	//Decimare coloane
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime;j++)
-			dec_2[i+j*latime]=fil[2*i+j*latime];
-	
-	//Filtrare coloane cu filtru H0
-	for (i=0; i<latime/2;i++)
-		for (j=1; j<inaltime;j++)
-			fil_dec_2[i+j*latime]=(dec_2[i+j*latime]+dec_2[i+(j-1)*latime])*0.707106781;
-	
-	//Decimare linii
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			dec_2_2[i+j*latime]=fil_dec_2[i+2*j*latime];
-
-	// Construire imagine iesire
-	for (i=0; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-			iesire[i+j*latime]=dec_2_2[i+j*latime];
-
-	// Golire imagini temporare
-		for (i=0; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-		{
-			fil[i+j*latime]=0;
-			fil_dec_2[i+j*latime]=0;
-			dec_2[i+j*latime]=0;
-			dec_2_2[i+j*latime]=0;
-		}
-	///////////////////////LH/////////////////////////////////////////////////
-	//Filtrare  pe linii filtru H0
-	for (i=1; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-			fil[i+j*latime]=(ent1[i+j*latime]+ent1[(i-1)+j*latime])*0.707106781;
-	
-	//Decimare coloane
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime;j++)
-			dec_2[i+j*latime]=fil[2*i+j*latime];
-	
-	//Filtrare coloane cu filtru H1
-	for (i=0; i<latime/2;i++)
-		for (j=1; j<inaltime;j++)
-			fil_dec_2[i+j*latime]=(dec_2[i+j*latime]-dec_2[i+(j-1)*latime])*0.707106781;
-	
-	//Decimare linii
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			dec_2_2[i+j*latime]=fil_dec_2[i+2*j*latime];
-
-	// Construire imagine iesire
-	for (i=latime/2; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-			iesire[i+j*latime]=dec_2_2[i-latime/2+j*latime];
-
-	// Golire imagini temporare
-		for (i=0; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-		{
-			fil[i+j*latime]=0;
-			fil_dec_2[i+j*latime]=0;
-			dec_2[i+j*latime]=0;
-			dec_2_2[i+j*latime]=0;
-		}
-	///////////////////////HL/////////////////////////////////////////////////
-	//Filtrare  pe linii filtru H1
-	for (i=1; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-			fil[i+j*latime]=(ent1[i+j*latime]-ent1[(i-1)+j*latime])*0.707106781;
-	
-	//Decimare coloane
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime;j++)
-			dec_2[i+j*latime]=fil[2*i+j*latime];
-	
-	//Filtrare coloane cu filtru H0
-	for (i=0; i<latime/2;i++)
-		for (j=1; j<inaltime;j++)
-			fil_dec_2[i+j*latime]=(dec_2[i+j*latime]+dec_2[i+(j-1)*latime])*0.707106781;
-	
-	//Decimare linii
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			dec_2_2[i+j*latime]=fil_dec_2[i+2*j*latime];
-
-	// Construire imagine iesire
-	for (i=0; i<latime;i++)
-		for (j=inaltime/2; j<inaltime;j++)
-			iesire[i+j*latime]=dec_2_2[i+(j-inaltime/2)*latime];
-
-	// Golire imagini temporare
-		for (i=0; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-		{
-			fil[i+j*latime]=0;
-			fil_dec_2[i+j*latime]=0;
-			dec_2[i+j*latime]=0;
-			dec_2_2[i+j*latime]=0;
-		}
-
-	///////////////////////HH/////////////////////////////////////////////////
-	//Filtrare  pe linii filtru H1
-	for (i=1; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-			fil[i+j*latime]=(ent1[i+j*latime]-ent1[(i-1)+j*latime])*0.707106781;
-	
-	//Decimare coloane
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime;j++)
-			dec_2[i+j*latime]=fil[2*i+j*latime];
-	
-	//Filtrare coloane cu filtru H0
-	for (i=0; i<latime/2;i++)
-		for (j=1; j<inaltime;j++)
-			fil_dec_2[i+j*latime]=(dec_2[i+j*latime]-dec_2[i+(j-1)*latime])*0.707106781;
-	
-	//Decimare linii
-	for (i=0;i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			dec_2_2[i+j*latime]=fil_dec_2[i+2*j*latime];
-
-	// Construire imagine iesire
-	for (i=latime/2; i<latime;i++)
-		for (j=inaltime/2; j<inaltime;j++)
-			iesire[i+j*latime]=dec_2_2[i-latime/2+(j-inaltime/2)*latime];
-			
-	//////////////////////////DOAR PT VIZUALIZARE//////////////////////////
-	for (i=0;i<latime;i++)
-	for (j=0;j<inaltime;j++)
-	{
-		if (iesire[i+j*latime]>255)
-			iesire[i+j*latime]=255;
-		if (iesire[i+j*latime]<0)
-			iesire[i+j*latime]=0;
-		imagOut[i+j*latime]= (unsigned char)iesire[i+j*latime];
-	}//////////////////////// SFARSIT VIZUALIZARE//////////////////////////
+     if ( pixel >= threshold )
+          return (char )255 ;
+     else
+          return (char )0 ;
 }
 
-
-void Sinteza_DWT (float * ent1, float * iesire, int latime, int inaltime)
+void sobel_operation(unsigned char *imgIn, unsigned char *imgOut, const int width, const int height, const size_t threshold)
 {
-	long i, j;
-	//////////////////////// DEFINIRE COEFICIENTI//////////////////////////
-	float g0_0 =1;
-	float g0_1 =1;
-	float g1_0 =1;
-	float g1_1 =1;
-	
-	//////////////////////// SFARSIT DEFINIRE//////////////////////////////
-		
-	for (i=0; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-		{
-		im1_exp2[i+j*latime]=0;
-		im1_exp2_fil[i+j*latime]=0;
-		im2_exp2[i+j*latime]=0;
-		im2_exp2_fil[i+j*latime]=0;
-		temp1_exp_fil2[i+j*latime]=0;
-		temp2_exp_fil2[i+j*latime]=0;
+	int rows,cols;
+	float gradient_h, gradient_v;
+	char pixel;
 
-		}
-	
-	//EXPANDARE LINII*FILTRARE LINII 
-	
-	//Expandare LL linii - valori de zero pt. ordonate impare
+	imgOut = (unsigned char*)malloc(sizeof(imgIn));
 
-	for (i=0; i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			im1_exp2[i+2*j*latime]=(ent1[i+j*latime]);
-	
-	//Filtrare G0 pe coloane
-	for (i=0; i<latime/2;i++)
-	for (j=1; j<inaltime;j++)
-			im1_exp2_fil[i+j*latime]=(g0_0*im1_exp2[i+j*latime]+g0_1*im1_exp2[i+(j-1)*latime]);
-	
-
-	//Expandare LH linii - valori de zero pt. ordonate impare
-	for (i=0; i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			im2_exp2[i+2*j*latime]=ent1[i+latime/2+(j)*latime];
-	
-	//Filtrare G1 pe coloane
-	for (i=0; i<latime/2;i++)
-	for (j=1; j<inaltime;j++)
-			im2_exp2_fil[i+j*latime]=(g1_0*im2_exp2[i+j*latime]+g1_1*im2_exp2[i+(j-1)*latime]);
-
-
-	//Adunare imagini temporare 
-	for (i=0; i<latime/2;i++)
-	for (j=0; j<inaltime;j++)
-			temp1_exp_fil2[i+j*latime]=im1_exp2_fil[i+j*latime]+im2_exp2_fil[i+j*latime];
-
-	//Golire imagini temporare
-	for (i=0; i<latime;i++)
-	for (j=0; j<inaltime;j++)
-		{
-			im1_exp2[i+j*latime]=0;
-			im1_exp2_fil[i+j*latime]=0;
-			im2_exp2[i+j*latime]=0;
-			im2_exp2_fil[i+j*latime]=0;
-		}
-
-	//Expandare HL -valori de zero pt. ordonate impare
-	for (i=0; i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			im1_exp2[i+2*j*latime]=(ent1[i+(j+latime/2)*latime]);
-	
-	//Filtrare G0 pe coloane
-	for (i=0; i<latime/2;i++)
-	for (j=1; j<inaltime;j++)
-			im1_exp2_fil[i+j*latime]=(g0_0*im1_exp2[i+j*latime]+g0_1*im1_exp2[i+(j-1)*latime]);
-
-
-	//Expandare HH coloane -valori de zero pt. ordonate impare
-	for (i=0; i<latime/2;i++)
-		for (j=0; j<inaltime/2;j++)
-			im2_exp2[i+2*j*latime]=(ent1[i+latime/2+(j+latime/2)*latime]);
-	
-	//Filtrare G1 pe coloane
-	for (i=0; i<latime/2;i++)
-	for (j=1; j<inaltime;j++)
-			im2_exp2_fil[i+j*latime]=(g1_0*im2_exp2[i+j*latime]+g1_1*im2_exp2[i+(j-1)*latime]);
-	
-	//Adunare imagini temporare
-	for (i=0; i<latime/2;i++)
-	for (j=0; j<inaltime;j++)
-			temp2_exp_fil2[i+j*latime]=im1_exp2_fil[i+j*latime]+im2_exp2_fil[i+j*latime];
-
-	// Golire imagini intermediare
-		for (i=0; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-		{
-			im1_exp2[i+j*latime]=0;
-			im2_exp2[i+j*latime]=0;
-			im1_exp2_fil[i+j*latime]=0;
-			im2_exp2_fil[i+j*latime]=0;
-		}
-
-
-	//EXPANDARE pe coloane - valori de zero pentru abscise imparre
-
-
-	for (i=0; i<latime/2;i++)
-		for (j=0; j<inaltime;j++)
-			im1_exp2[2*i+j*latime]=(temp1_exp_fil2[i+j*latime]);
-
-	//Filtrare G0 pe linii
-	for (i=1; i<latime;i++)
-	for (j=0; j<inaltime;j++)
-			im1_exp2_fil[i+j*latime]=(g0_0*im1_exp2[i+j*latime]+g0_1*im1_exp2[i-1+(j)*latime]);
-	
-
-
-	//EXPANDARE pe coloane - valori de zero pentru abscise impare
-	for (i=0; i<latime/2;i++)
-		for (j=0; j<inaltime;j++)
-			im2_exp2[2*i+j*latime]=(temp2_exp_fil2[i+j*latime]);
-
-	//Filtrare G1 pe linii
-	for (i=1; i<latime;i++)
-	for (j=0; j<inaltime;j++)
-			im2_exp2_fil[i+j*latime]=(g1_0*im2_exp2[i+(j)*latime]+g1_1*im2_exp2[i-1+j*latime]);
-
-	for (i=0; i<latime;i++)
-		for (j=0; j<inaltime;j++)
-					iesire[i+j*latime]=im1_exp2_fil[i+j*latime]+im2_exp2_fil[i+j*latime];
-					
-		for (i=0;i<latime;i++)
-	for (j=0;j<inaltime;j++)
+	for (rows = 0; rows < height; rows++)
 	{
-		if (iesire[i+j*latime]>255)
-			iesire[i+j*latime]=255;
-		if (iesire[i+j*latime]<0)
-			iesire[i+j*latime]=0;
-		imagOut[i+j*latime]= (unsigned char)iesire[i+j*latime];
+		for (cols = 0; cols < width; cols++)
+		{
+			if ((rows != 0) && (cols != 0) && 
+				(rows != height - 1) && (cols != width -1 ))
+			{
+				
+				gradient_v = -(- imgIn [ (rows-1)*width + (cols-1 )] 
+							   + imgIn [(rows-1)*width + (cols+1) ] 
+							   - 2*imgIn [rows*width + (cols-1)] 
+							   + 2*imgIn [ rows*width + (cols+1) ] 
+							   - imgIn[ (rows+1)*width + (cols-1)] 
+							   + imgIn [ (rows+1)*width + (cols+1)] ) /8 ;
+					
+				gradient_h = -(- imgIn [(rows-1)*width + (cols-1)] 
+							   - 2*imgIn [ (rows-1)*width + cols ] 
+							   - imgIn [(rows-1)*width + (cols+1)] 
+							   + imgIn [(rows+1)*width + (cols-1)] 
+							   + 2*imgIn [(rows+1)*width + cols ]  
+							   + imgIn [(rows+1)*width + (cols+1)] ) /8 ;
+			
+				//Assign to image
+				pixel = ( char ) sqrtf ( gradient_h * gradient_h + gradient_v * gradient_v ) ;
+						Output[ ( rows - 1 )*width  + (cols- 1 ) ]   =  sobel_check_threshold  ( pixel, threshold );
+			}
+		}
 	}
 }
-
-
-void main(){
-	Analiza_DWT (imagIn, imagAnaliza, 128,128);
-//	Sinteza_DWT (imagAnaliza, imagSinteza, 128,128);
-	while (1);
-}
 */
+
+#include "file.h"
+#include <stdio.h>
+#include <limits.h>
+#include <stdlib.h>
+
+float kernelx[3][3] = { { -1, 0, 1 },
+                        { -2, 0, 2 },
+                        { -1, 0, 1 } };
+
+float kernely[3][3] = { { -1, -2, -1 },
+                        {  0,  0,  0 },
+                        {  1,  2,  1 } };
+
+
+unsigned char *sobel_filtering(unsigned char *imgIn, int width, int height)
+{
+	unsigned char *imgOut;
+	float pixel_value;
+  	float min, max;
+  	int x, y, i, j; 
+
+	imgOut = (unsigned char*)malloc(sizeof(imgIn));
+	printf("Started filtering the image.\n\n");
+	min = LONG_MAX;
+	max = LONG_MIN;
+
+	for (y = 1; y < height - 1; y++) 
+	{
+    	for (x = 1; x < width - 1; x++) 
+		{
+      		pixel_value = 0.0;
+      		for (j = -1; j <= 1; j++) 
+			{
+      		    for (i = -1; i <= 1; i++) 
+      		      pixel_value += kernelx[j + 1][i + 1] * (float)(imgIn[y + j + width * x + i]);
+      		    
+      		}
+      		if (pixel_value < min) min = pixel_value;
+      		if (pixel_value > max) max = pixel_value;
+    	}
+  	}
+
+	for (y = 1; y < height - 1; y++) 
+	{
+    	for (x = 1; x < width - 1; x++) 
+		{
+      		pixel_value = 0.0;
+      		for (j = -1; j <= 1; j++) 
+			{
+          		for (i = -1; i <= 1; i++) 
+            	pixel_value += kernelx[j + 1][i + 1] * (float)(imgIn[y + j + width * x + i]);
+          	}
+      	}
+      	pixel_value = (pixel_value - min) / (max - min);
+      	imgOut[y + width * x] = (unsigned char)pixel_value;
+  	}
+
+  	return imgOut;
+}
