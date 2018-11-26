@@ -1,4 +1,8 @@
-/*
+#include "file.h"
+#include <stdio.h>
+#include <limits.h>
+#include <stdlib.h>
+
 char sobel_check_threshold ( char pixel ,const size_t threshold )
 {
      if ( pixel >= threshold )
@@ -43,65 +47,4 @@ void sobel_operation(unsigned char *imgIn, unsigned char *imgOut, const int widt
 			}
 		}
 	}
-}
-*/
-
-#include "file.h"
-#include <stdio.h>
-#include <limits.h>
-#include <stdlib.h>
-
-float kernelx[3][3] = { { -1, 0, 1 },
-                        { -2, 0, 2 },
-                        { -1, 0, 1 } };
-
-float kernely[3][3] = { { -1, -2, -1 },
-                        {  0,  0,  0 },
-                        {  1,  2,  1 } };
-
-
-unsigned char *sobel_filtering(unsigned char *imgIn, int width, int height)
-{
-	unsigned char *imgOut;
-	float pixel_value;
-  	float min, max;
-  	int x, y, i, j; 
-
-	imgOut = (unsigned char*)malloc(sizeof(imgIn));
-	printf("Started filtering the image.\n\n");
-	min = LONG_MAX;
-	max = LONG_MIN;
-
-	for (y = 1; y < height - 1; y++) 
-	{
-    	for (x = 1; x < width - 1; x++) 
-		{
-      		pixel_value = 0.0;
-      		for (j = -1; j <= 1; j++) 
-			{
-      		    for (i = -1; i <= 1; i++) 
-      		      pixel_value += kernelx[j + 1][i + 1] * (float)(imgIn[y + j + width * x + i]);
-      		    
-      		}
-      		if (pixel_value < min) min = pixel_value;
-      		if (pixel_value > max) max = pixel_value;
-    	}
-  	}
-
-	for (y = 1; y < height - 1; y++) 
-	{
-    	for (x = 1; x < width - 1; x++) 
-		{
-      		pixel_value = 0.0;
-      		for (j = -1; j <= 1; j++) 
-			{
-          		for (i = -1; i <= 1; i++) 
-            	pixel_value += kernelx[j + 1][i + 1] * (float)(imgIn[y + j + width * x + i]);
-          	}
-      	}
-      	pixel_value = (pixel_value - min) / (max - min);
-      	imgOut[y + width * x] = (unsigned char)pixel_value;
-  	}
-
-  	return imgOut;
 }
